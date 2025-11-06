@@ -1,3 +1,4 @@
+import { storeEmailInEs } from "../services/emailStore.ts";
 import { imapClient } from "./client.ts";
 
 export async function startImapConnection() {
@@ -12,7 +13,20 @@ export async function startImapConnection() {
   since.setDate(since.getDate() - 30);
 
   for await (const message of imapClient.fetch({ since }, { envelope: true })) {
+    const emailData = {
+      subject: message.envelope?.subject || "",
+      from: message.envelope?.from?.[0]?.address || "",
+      to: message.envelope?.to?.[0]?.address || "",
+      date: message.envelope?.date
+        ? new Date(message.envelope.date).toISOString()
+        : new Date().toISOString(),
+      body: "",
+      account: process.env.EMAIL_USER!,
+      folder: "INBOX",
+    };
+
     console.log("email fetched:", message.envelope?.subject);
+    await storeEmailInEs(emailData);
   }
 
   imapClient.on("exists", async () => {
@@ -41,6 +55,19 @@ export async function startImapConnection() {
       return;
     }
 
+    const emailData = {
+      subject: latest.envelope?.subject || "",
+      from: latest.envelope?.from?.[0]?.address || "",
+      to: latest.envelope?.to?.[0]?.address || "",
+      date: latest.envelope?.date
+        ? new Date(latest.envelope.date).toISOString()
+        : new Date().toISOString(),
+      body: "",
+      account: process.env.EMAIL_USER!,
+      folder: "INBOX",
+    };
+
+    await storeEmailInEs(emailData);
     console.log("From:", envelope.from?.[0]?.address || "Unknown");
     console.log("Subject:", envelope.subject || "(No Subject)");
   });

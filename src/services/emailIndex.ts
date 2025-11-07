@@ -21,6 +21,7 @@ export async function createEmailIndex() {
         body: { type: "text" },
         account: { type: "keyword" },
         folder: { type: "keyword" },
+        categories: { type: "keyword" },
       },
     },
   });

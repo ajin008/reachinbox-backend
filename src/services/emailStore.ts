@@ -1,13 +1,32 @@
 import type { storeEmailProps } from "../types/index.ts";
+import { categoriesByRule } from "./aiRules.ts";
 import { esClient } from "./elasticsearch.ts";
+import { sendSlackNotification } from "./slack.ts";
 
 export async function storeEmailInEs(email: storeEmailProps) {
   try {
+    let category = categoriesByRule(`${email.subject}\n${email.body}`);
+
+    if (process.env.USE_LLM === "true") {
+      try {
+        const basic = email.body.trim() ? email.body : email.subject;
+        category = await categoriesByRule(basic || "");
+      } catch (e) {
+        console.log("LLM categorization failed,", e);
+      }
+    }
     const res = await esClient.index({
       index: "emails",
-      document: email,
+      document: { ...email, category },
     });
-    console.log("stored email in Es:", res.result);
+
+    // trigger slack notification if category === interested
+    if (category === "Interested") {
+      await sendSlackNotification(
+        `New Interested Lead! from ${email.from} with subject: ${email.subject}`
+      );
+    }
+    console.log("Stored email:", res.result, "category:", category);
   } catch (error) {
     console.error("Error storing email in Es:", error);
   }

@@ -1,5 +1,6 @@
 import { storeEmailInEs } from "../services/emailStore.ts";
 import { imapClient } from "./client.ts";
+import { simpleParser, type ParsedMail } from "mailparser";
 
 export async function startImapConnection() {
   await imapClient.connect();
@@ -12,15 +13,19 @@ export async function startImapConnection() {
   const since = new Date();
   since.setDate(since.getDate() - 30);
 
-  for await (const message of imapClient.fetch({ since }, { envelope: true })) {
+  for await (const message of imapClient.fetch(
+    { since },
+    { envelope: true, source: true }
+  )) {
+    const raw = await message.source;
+    const parsed: ParsedMail = await simpleParser(raw);
+
     const emailData = {
-      subject: message.envelope?.subject || "",
-      from: message.envelope?.from?.[0]?.address || "",
-      to: message.envelope?.to?.[0]?.address || "",
-      date: message.envelope?.date
-        ? new Date(message.envelope.date).toISOString()
-        : new Date().toISOString(),
-      body: "",
+      subject: parsed.subject || "",
+      from: parsed.from?.text || "",
+      to: parsed.to?.text || "",
+      date: parsed.date?.toISOString() || new Date().toISOString(),
+      body: parsed.text || parsed.html || "",
       account: process.env.EMAIL_USER!,
       folder: "INBOX",
     };
@@ -41,6 +46,7 @@ export async function startImapConnection() {
 
     const latest = await imapClient.fetchOne(messageCount, {
       envelope: true,
+      source: true,
     });
 
     if (!latest) {
@@ -55,14 +61,27 @@ export async function startImapConnection() {
       return;
     }
 
+    const raw = await latest.source;
+
+    if (!raw) {
+      console.warn("⚠️ Skipped email — no raw content");
+      return;
+    }
+
+    let parsed: ParsedMail;
+    try {
+      parsed = await simpleParser(raw);
+    } catch (err) {
+      console.error("mailparser failed:", err);
+      return;
+    }
+
     const emailData = {
-      subject: latest.envelope?.subject || "",
-      from: latest.envelope?.from?.[0]?.address || "",
-      to: latest.envelope?.to?.[0]?.address || "",
-      date: latest.envelope?.date
-        ? new Date(latest.envelope.date).toISOString()
-        : new Date().toISOString(),
-      body: "",
+      subject: parsed.subject || "",
+      from: parsed.from?.text || "",
+      to: parsed.to?.text || "",
+      date: parsed.date?.toISOString() || new Date().toISOString(),
+      body: parsed.text || parsed.html || "",
       account: process.env.EMAIL_USER!,
       folder: "INBOX",
     };

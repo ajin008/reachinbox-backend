@@ -1,5 +1,6 @@
 import { Client } from "@elastic/elasticsearch";
+import { ENV } from "../config/env.ts";
 
 export const esClient = new Client({
-  node: "http://localhost:9200",
+  node: ENV.Es_url || "http://localhost:9200",
 });

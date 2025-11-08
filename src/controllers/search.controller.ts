@@ -26,7 +26,12 @@ export const mailSearch = async (req: Request, res: Response) => {
       ...(hit._source ?? {}),
     }));
 
-    res.json(emails);
+    res.json({
+      emails,
+      total: emails.length,
+      page: 1,
+      limit: emails.length,
+    });
   } catch (error) {
     console.error("Search failed:", error);
     res.status(500).json({ error: "Search failed" });

@@ -4,6 +4,7 @@ import {
   getAllMail,
   getCurrentAccount,
   getEmailById,
+  sendAiReplay,
 } from "../controllers/email.controller.ts";
 import { mailSearch } from "../controllers/search.controller.ts";
 
@@ -15,5 +16,6 @@ router.get("/emails/filter", filterEmails);
 router.get("/search", mailSearch);
 
 router.get("/account", getCurrentAccount);
+router.post("/ai-replay", sendAiReplay);
 
 export default router;

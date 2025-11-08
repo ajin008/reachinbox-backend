@@ -1,5 +1,6 @@
 import OpenAI from "openai";
+import { ENV } from "./env.ts";
 
 export const openAi = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: ENV.openAi_api_key,
 });

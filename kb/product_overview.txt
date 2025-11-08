@@ -1,0 +1,1 @@
+ReachInbox is an AI-driven outreach tool. It finds and verifies leads, crafts personalized sequences, and notifies about responsive prospects. Channels: email, LinkedIn, Twitter, phone.

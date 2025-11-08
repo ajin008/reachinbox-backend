@@ -23,11 +23,32 @@ export async function storeEmailInEs(email: storeEmailProps) {
     // trigger slack notification if category === interested
     if (category === "Interested") {
       await sendSlackNotification(
-        `New Interested Lead! from ${email.from} with subject: ${email.subject}`
+        `New Interested Lead! from ${
+          email.from.match(/<(.*)>/)?.[1] || email.from
+        } with subject: ${email.subject}`
       );
     }
     console.log("Stored email:", res.result, "category:", category);
   } catch (error) {
     console.error("Error storing email in Es:", error);
+  }
+}
+
+export async function getEmailByIdFromES(id: string) {
+  try {
+    const response = await esClient.get({
+      index: "emails",
+      id,
+    });
+
+    if (!response.found) return null;
+
+    return {
+      id: response._id,
+      ...(response._source as any),
+    };
+  } catch (err) {
+    console.error("Elasticsearch get-by-id error:", err);
+    return null;
   }
 }

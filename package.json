@@ -6,6 +6,7 @@
   "scripts": {
     "build": "swc src -d dist",
     "dev": "nodemon --watch src --exec node --enable-source-maps --experimental-strip-types src/server.ts",
+    "seed": "tsx src/vector/seedKb.ts",
     "start": "node dist/server.js"
   },
   "keywords": [],
@@ -20,6 +21,7 @@
     "express": "^5.1.0",
     "imapflow": "^1.1.1",
     "mailparser": "^3.9.0",
+    "nodemailer": "^7.0.10",
     "openai": "^6.8.1"
   },
   "devDependencies": {
@@ -28,7 +30,8 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
     "@types/node": "^24.10.0",
+    "@types/nodemailer": "^7.0.3",
     "nodemon": "^3.1.10",
-    "typescript": "^5.9.3"
+    "tsx": "^4.20.6"
   }
 }

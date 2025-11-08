@@ -1,0 +1,3 @@
+If a lead is interested, thank them and share booking link: https://cal.com/example
+If a lead asks for price, summarize plans and link the pricing page.
+If a lead is OOO, schedule a follow-up one week later.

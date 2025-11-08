@@ -2,6 +2,11 @@ import { esClient } from "../services/elasticsearch.ts";
 import type { Request, Response } from "express";
 import type { EmailDocument } from "../types/index.ts";
 import dotenv from "dotenv";
+import { getEmailByIdFromES } from "../services/emailStore.ts";
+import { embedText } from "../utils/embedText.ts";
+import { searchKB } from "../vector/index.ts";
+import { generateAIReply } from "../services/ai/generateAIReply.ts";
+import { sendReplayEmail } from "../services/mailer.ts";
 dotenv.config();
 
 export const getAllMail = async (req: Request, res: Response) => {
@@ -23,7 +28,6 @@ export const getAllMail = async (req: Request, res: Response) => {
       id: hit._id,
       ...(hit._source as EmailDocument),
     }));
-    console.log("getAllEmail return info:", emails);
     const total = (result.hits.total as any)?.value ?? 0;
 
     res.json({ emails, page, limit, total });
@@ -89,5 +93,47 @@ export const getCurrentAccount = (req: Request, res: Response) => {
   } catch (err) {
     console.error("Error fetching account:", err);
     res.status(500).json({ error: "Failed to fetch account" });
+  }
+};
+
+export const sendAiReplay = async (req: Request, res: Response) => {
+  try {
+    const { mailId } = req.body;
+
+    if (!mailId) {
+      return res.status(400).json({ error: "mailId is required" });
+    }
+
+    const email = await getEmailByIdFromES(mailId);
+    // console.log("data from email", email);
+    if (!email) {
+      return res.status(404).json({ error: "Email not found" });
+    }
+
+    if (!email.from) {
+      return res.status(400).json({ error: "Email has no 'from' field" });
+    }
+
+    const embedding = await embedText(
+      `${email.subject}\n${email.from}\n${email.body}`
+    );
+    // console.log("data from embedding:", embedding);
+
+    const kbMatch = await searchKB(embedding);
+    // console.log("data from kbMatch:", kbMatch);
+
+    const replayText = await generateAIReply(email.body, kbMatch);
+    // console.log("data from replayText", replayText);
+
+    const sent = await sendReplayEmail(email.from, replayText ?? "");
+    // console.log("data from sent", sent);
+
+    return res.json({
+      success: true,
+      reply: replayText,
+      sent,
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to send mails" });
   }
 };

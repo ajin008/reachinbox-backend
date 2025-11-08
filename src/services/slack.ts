@@ -1,13 +1,14 @@
 import axios from "axios";
+import { ENV } from "../config/env.ts";
 
 export async function sendSlackNotification(message: string) {
   console.log("slack url:");
-  if (!process.env.SLACK_WEBHOOK_URL) {
+  if (!ENV.slack_webHook_url) {
     console.warn("SLACK_WEBHOOK_URL not set. skipping slack notification.");
     return;
   }
   try {
-    await axios.post(process.env.SLACK_WEBHOOK_URL, {
+    await axios.post(ENV.slack_webHook_url, {
       text: message,
     });
   } catch (err) {

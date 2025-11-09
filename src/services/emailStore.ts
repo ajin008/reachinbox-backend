@@ -1,3 +1,4 @@
+import { io } from "../server.ts";
 import type { storeEmailProps } from "../types/index.ts";
 import { categoriesByRule } from "./aiRules.ts";
 import { esClient } from "./elasticsearch.ts";
@@ -19,6 +20,9 @@ export async function storeEmailInEs(email: storeEmailProps) {
       index: "emails",
       document: { ...email, category },
     });
+
+    const emailWithId = { id: res._id, ...email };
+    io.emit("new-email", emailWithId);
 
     // trigger slack notification if category === interested
     if (category === "Interested") {

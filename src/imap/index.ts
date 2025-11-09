@@ -1,6 +1,7 @@
 import { storeEmailInEs } from "../services/emailStore.ts";
 import { imapClient } from "./client.ts";
 import { simpleParser, type ParsedMail } from "mailparser";
+import { io } from "../server.ts";
 
 export async function startImapConnection() {
   await imapClient.connect();
@@ -87,6 +88,7 @@ export async function startImapConnection() {
     };
 
     await storeEmailInEs(emailData);
+
     console.log("From:", envelope.from?.[0]?.address || "Unknown");
     console.log("Subject:", envelope.subject || "(No Subject)");
   });

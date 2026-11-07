@@ -1,34 +1,24 @@
+import http from "node:http";
 import app from "./app.ts";
-import { startImapConnection } from "./imap/index.ts";
-import { createEmailIndex } from "./services/emailIndex.ts";
-import http from "http";
-import { Server } from "socket.io";
-
-const PORT = process.env.PORT || 3000;
+import { ENV } from "./config/env.ts";
+import { initSocket } from "./infra/socket.ts";
+import { initWhatsAppClient } from "./infra/whatsapp.client.ts";
+import { ensureKBIndex } from "./modules/ai/kb.repository.ts";
+import { startImapWorker } from "./modules/emails/email.imap.worker.ts";
+import { ensureEmailIndex } from "./modules/emails/email.repository.ts";
 
 const server = http.createServer(app);
-
-export const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:3001",
-    credentials: true,
-  },
-});
-
-io.on("connection", (socket) => {
-  console.log("websocket client connected:", socket.id);
-  socket.on("disconnect", () => {
-    console.log("client disconnected:", socket.id);
-  });
-});
+initSocket(server);
 
 async function startServer() {
-  server.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+  server.listen(ENV.port, () => {
+    console.log(`Server running on http://localhost:${ENV.port}`);
   });
 
-  await createEmailIndex();
-  await startImapConnection();
+  await ensureEmailIndex();
+  await ensureKBIndex();
+  await initWhatsAppClient();
+  await startImapWorker();
 }
 
 startServer().catch((error) => {

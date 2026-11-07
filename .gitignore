@@ -22,3 +22,4 @@ yarn-debug.log*
 
 # Others
 coverage/
+.whatsapp-auth/

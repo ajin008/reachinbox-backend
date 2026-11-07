@@ -4,17 +4,18 @@ import {
   getAllMail,
   getCurrentAccount,
   getEmailById,
+  mailSearch,
   sendAiReplay,
-} from "../controllers/email.controller.ts";
-import { mailSearch } from "../controllers/search.controller.ts";
+} from "./email.controller.ts";
 
 const router = Router();
 
 router.get("/emails", getAllMail);
-router.get("/emails/:id", getEmailById);
+// Register /emails/filter BEFORE /emails/:id so "filter" isn't captured as :id
 router.get("/emails/filter", filterEmails);
-router.get("/search", mailSearch);
+router.get("/emails/:id", getEmailById);
 
+router.get("/search", mailSearch);
 router.get("/account", getCurrentAccount);
 router.post("/ai-replay", sendAiReplay);
 

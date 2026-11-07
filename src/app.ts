@@ -1,18 +1,20 @@
-import express from "express";
-import emailRoutes from "./routes/email.routes.ts";
-const app = express();
 import cors from "cors";
+import express from "express";
+import { ENV } from "./config/env.ts";
+import emailRoutes from "./modules/emails/email.routes.ts";
+
+const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:3001",
+    origin: ENV.frontendOrigins,
     credentials: true,
   })
 );
 
 app.use(express.json());
 
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.send("Backend is running");
 });
 

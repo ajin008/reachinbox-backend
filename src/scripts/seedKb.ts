@@ -1,13 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
-import OpenAI from "openai";
-import { esClient } from "../services/elasticsearch.ts";
-import { ensureKBIndex } from "./kbIndex.ts";
-
-const openai = new OpenAI({
-  apiKey:
-    "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",
-});
+import {
+  ensureKBIndex,
+  indexKBChunk,
+  refreshKBIndex,
+} from "../modules/ai/kb.repository.ts";
+import { embedText } from "../modules/ai/rag.service.ts";
 
 const KB_DIR = path.join(process.cwd(), "kb");
 
@@ -29,8 +27,13 @@ function chunkText(text: string, maxChars = 1000): string[] {
   return chunks;
 }
 
-export async function seedKB() {
+export async function seedKB(): Promise<void> {
   await ensureKBIndex();
+
+  if (!fs.existsSync(KB_DIR)) {
+    console.warn(`Directory "${KB_DIR}" not found.`);
+    return;
+  }
 
   const files = fs.readdirSync(KB_DIR).filter((f) => f.endsWith(".txt"));
   if (files.length === 0) {
@@ -38,7 +41,7 @@ export async function seedKB() {
     return;
   }
 
-  for (let file of files) {
+  for (const file of files) {
     const full = path.join(KB_DIR, file);
     const content = fs.readFileSync(full, "utf8");
     const title = path.basename(file, ".txt");
@@ -46,28 +49,21 @@ export async function seedKB() {
     const chunks = chunkText(content, 1000);
     console.log(`Seeding "${file}" as ${chunks.length} chunk(s)...`);
 
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
-
-      const { data } = await openai.embeddings.create({
-        model: "text-embedding-3-small",
-        input: chunk,
-      });
-
-      const vector = data[0].embedding;
-
-      await esClient.index({
-        index: "kb_docs",
-        document: {
-          title,
-          content: chunk,
-          created_at: new Date().toISOString(),
-          embedding: vector,
-        },
+    for (const chunk of chunks) {
+      const embedding = await embedText(chunk);
+      await indexKBChunk({
+        title,
+        content: chunk,
+        embedding,
       });
     }
-
-    await esClient.indices.refresh({ index: "kb_docs" });
-    console.log("KB seeding complete");
   }
+
+  await refreshKBIndex();
+  console.log("KB seeding complete.");
 }
+
+seedKB().catch((err) => {
+  console.error("Failed to seed Knowledge Base:", err);
+  process.exit(1);
+});

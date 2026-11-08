@@ -1,1 +1,30 @@
-ReachInbox is an AI-driven outreach tool. It finds and verifies leads, crafts personalized sequences, and notifies about responsive prospects. Channels: email, LinkedIn, Twitter, phone.
+Odoline — Dealership Software for Pre-Owned Car Showrooms
+Tagline: "Every car. Every mile. One timeline. Run your used-car showroom from one screen."
+Website: https://odoline-frontend.vercel.app/
+Location & Origin: Built in Kerala, India, inside a working pre-owned car showroom for Indian pre-owned car dealers.
+
+Overview:
+Odoline runs your used-car showroom from one screen: stock, documents, leads, bookings, staff attendance, and owner dashboards. It tracks every car from purchase to RC transfer, keeps your sales team on top of every enquiry, and shows you exactly where your money is.
+
+9-Stage Complete Car Journey Tracked in Odoline:
+01. Purchase -> 02. Documents -> 03. Refurbishment -> 04. Pricing -> 05. In Stock -> 06. Enquiry -> 07. Booking -> 08. Delivery -> 09. RC Transfer.
+From the day you buy a car to the day its RC is in the new owner's name, every step is recorded: who did it, when, and what it cost.
+
+Six Core Modules:
+1. Stock and Intake: Record every car you buy with seller details, refurbishment costs, and your margin. Always know what is in the yard and what each car really cost.
+2. No Missing Papers (Documents): Track RC, NOC, insurance, pollution certificate, and seller KYC for every car. A car cannot be delivered until its required documents are in.
+3. Leads and Follow-ups: Every enquiry is assigned to a salesperson with a follow-up date so no hot lead goes cold and you can see who is converting.
+4. Bookings and Delivery: Prebook a car the moment a deal is won so two salespeople can never sell the same car. Generate branded booking documents with amounts in lakhs and in words.
+5. Staff Attendance: Staff clock in from their phone only when they are at the showroom. See who is present, late, or absent at a glance.
+6. Owner Dashboards: Track enquiries, bookings, deliveries, and staff performance by day, week, or month in one screen.
+
+Partner & Multi-Owner Access:
+Built for showrooms run by partners. Every partner gets their own login (up to 4 owner logins per showroom):
+- 1 Primary Owner with full access to make changes.
+- Up to 3 Partners with view-only access to see stock, costs, margins, and sales without the risk of accidental edits.
+- Every action is recorded with an audit trail of who did it.
+
+Platform, Security & Reliability:
+- Works on both phone and computer browsers; can be installed like an app (PWA) with light and dark mode.
+- Each showroom has its own isolated private database — data is never mixed with another dealer's.
+- Private document storage and automated daily backups.

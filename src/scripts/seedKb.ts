@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import {
+  clearKBIndex,
   ensureKBIndex,
   indexKBChunk,
   refreshKBIndex,
@@ -29,6 +30,7 @@ function chunkText(text: string, maxChars = 1000): string[] {
 
 export async function seedKB(): Promise<void> {
   await ensureKBIndex();
+  await clearKBIndex();
 
   if (!fs.existsSync(KB_DIR)) {
     console.warn(`Directory "${KB_DIR}" not found.`);

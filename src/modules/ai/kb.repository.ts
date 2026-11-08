@@ -58,6 +58,17 @@ export async function refreshKBIndex(): Promise<void> {
   await esClient.indices.refresh({ index: KB_INDEX });
 }
 
+export async function clearKBIndex(): Promise<void> {
+  const exists = await esClient.indices.exists({ index: KB_INDEX });
+  if (exists) {
+    await esClient.deleteByQuery({
+      index: KB_INDEX,
+      query: { match_all: {} },
+      refresh: true,
+    });
+  }
+}
+
 export async function searchKnowledgeBase(
   embedding: number[],
   k = 3

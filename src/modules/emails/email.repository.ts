@@ -79,7 +79,7 @@ export async function findEmailsPaginated(
     query: {
       match_all: {},
     },
-    sort: [{ date: { order: "desc" } }],
+    sort: [{ date: { order: "desc" } }, { _id: { order: "asc" } }],
   });
 
   const emails: StoredEmail[] = result.hits.hits.map((hit) => ({
@@ -128,7 +128,7 @@ export async function findEmailsByFilter(
         must: mustFilters,
       },
     },
-    sort: [{ date: { order: "desc" } }],
+    sort: [{ date: { order: "desc" } }, { _id: { order: "asc" } }],
   });
 
   return result.hits.hits.map((hit) => ({
